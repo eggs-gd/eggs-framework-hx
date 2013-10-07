@@ -1,0 +1,18 @@
+## Flash 9+
+-main TestMain
+
+-lib msignal
+-lib munit
+-lib mcover
+-lib hamcrest
+
+-cp src
+-cp test
+
+-swf-version 11
+-swf build/as3_test.swf
+
+-debug
+-D fdb
+
+--next
