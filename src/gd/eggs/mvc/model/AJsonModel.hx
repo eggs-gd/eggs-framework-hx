@@ -17,12 +17,16 @@ class AJsonModel implements IModel implements IAbstractClass
 	
 	public var isInited(default, null):Bool;
 	
-	var _uid(default, null):String;
+	public var id(default, null):String;
+	
+	var _meta(default, null):Dynamic;
 	
 	//=========================================================================
 	//	CONSTRUCTOR
 	//=========================================================================
-	private function new() { }
+	private function new() { 
+		_meta = Meta.getFields(Type.getClass(this));
+	}
 	
 	//=========================================================================
 	//	PUBLIC
@@ -32,10 +36,10 @@ class AJsonModel implements IModel implements IAbstractClass
 	public function init() {};
 	public function destroy() {};
 	
-	public function fillData(data:Dynamic, ?uid:String) {
+	public function fillData(data:Dynamic, ?id:String) {
 		
 		// установить уид
-		if (uid != null) _uid = uid;
+		if (id != null) this.id = id;
 		
 		// Распарсить объект если тут строка
 		var object;
@@ -58,8 +62,7 @@ class AJsonModel implements IModel implements IAbstractClass
 				} else if (Std.is(fieldRef, StringMap)) { // Если это словарь
 					var map:StringMap<Dynamic> = cast fieldRef;
 					// получить тип
-					var meta = Meta.getFields(Type.getClass(this));
-					var fieldMeta = Reflect.field(meta, field);
+					var fieldMeta = Reflect.field(_meta, field);
 					var typeArr:Array<Dynamic> = null;
 					var type = null;
 					var mapChild = null;
@@ -81,8 +84,7 @@ class AJsonModel implements IModel implements IAbstractClass
 				} else if (Std.is(fieldRef, Array)) {
 					var array:Array<Dynamic> = cast fieldRef;
 					// получить тип
-					var meta = Meta.getFields(Type.getClass(this));
-					var fieldMeta = Reflect.field(meta, field);
+					var fieldMeta = Reflect.field(_meta, field);
 					var typeArr:Array<Dynamic> = null;
 					var type = null;
 					var arrayChild = null;
