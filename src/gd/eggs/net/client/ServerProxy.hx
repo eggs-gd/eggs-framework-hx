@@ -33,7 +33,7 @@ class ServerProxy<T:IMessage> implements IInitialize {
 	public var signalDisconnected(default, null):Signal1<ConnectorEvent>;
 	public var signalError(default, null):Signal1<ConnectorEvent>;
 	public var signalLog(default, null):Signal1<ConnectorEvent>;
-	public var signalData(default, null):Signal1<IMessage>;
+	public var signalData(default, null):Signal1<T>;
 	
 	/**
 	 * Список доступных вариантов для коннекта
@@ -76,7 +76,7 @@ class ServerProxy<T:IMessage> implements IInitialize {
 		signalDisconnected = new Signal1<ConnectorEvent>();
 		signalError = new Signal1<ConnectorEvent>();
 		signalLog = new Signal1<ConnectorEvent>();
-		signalData = new Signal1<IMessage>();
+		signalData = new Signal1<T>();
 		
 		isInited = true;
 	}
@@ -142,7 +142,7 @@ class ServerProxy<T:IMessage> implements IInitialize {
 		signalLog.dispatch(event);
 	}
 	
-	function onConnectorData(message:IMessage) {
+	function onConnectorData(message:T) {
 		signalData.dispatch(message);
 	}
 	

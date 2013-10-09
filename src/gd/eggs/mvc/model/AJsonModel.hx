@@ -15,9 +15,9 @@ class AJsonModel implements IModel implements IAbstractClass
 	//	PARAMETERS
 	//=========================================================================
 	
-	public var isInited(default, null):Bool;
+	public var _id_(default, null):String;
 	
-	public var id(default, null):String;
+	public var isInited(default, null):Bool;
 	
 	var _meta(default, null):Dynamic;
 	
@@ -39,7 +39,7 @@ class AJsonModel implements IModel implements IAbstractClass
 	public function fillData(data:Dynamic, ?id:String) {
 		
 		// установить уид
-		if (id != null) this.id = id;
+		if (id != null) this._id_ = id;
 		
 		// Распарсить объект если тут строка
 		var object;
@@ -56,48 +56,41 @@ class AJsonModel implements IModel implements IAbstractClass
 				
 				var fieldRef = Reflect.field(this, field); // Сохраняем ссылку на поле в переменную
 				var fieldData = Reflect.field(object, field); // Сохраняем данные поля в переменную
+				var fieldMeta = Reflect.field(_meta, field);
+				
+				var fieldTypesArr:Array<Dynamic> = null;
+				var fieldType = null;
+				var collectionItem = null;
+				
+				if (fieldMeta != null) fieldTypesArr = Reflect.field(fieldMeta, "collectionType");
+				if (fieldTypesArr != null && fieldTypesArr.length > 0) fieldType = Type.resolveClass(fieldTypesArr[0]);
 				
 				if (Std.is(fieldRef, AJsonModel)) { // Если поле - это одчерняя модель
 					Reflect.callMethod(fieldRef, Reflect.field(fieldRef, "fillData"), [fieldData]);
 				} else if (Std.is(fieldRef, StringMap)) { // Если это словарь
 					var map:StringMap<Dynamic> = cast fieldRef;
-					// получить тип
-					var fieldMeta = Reflect.field(_meta, field);
-					var typeArr:Array<Dynamic> = null;
-					var type = null;
-					var mapChild = null;
-					if (fieldMeta != null) typeArr = Reflect.field(fieldMeta, "collectionType");
-					if (typeArr != null && typeArr.length > 0) type = Type.resolveClass(typeArr[0]);
 					
 					for (field2 in Reflect.fields(fieldData)) { // Проходим по всем детям мапы
-						if (type != null) mapChild = Type.createInstance(type, []);
+						if (fieldType != null) collectionItem = Type.createInstance(fieldType, []);
 						
-						if (mapChild != null && Std.is(mapChild, AJsonModel)) { // если тип - наследник жсон-модели то пройтись по детям
-							Reflect.callMethod(mapChild, Reflect.field(mapChild, "fillData"), [Reflect.field(fieldData, field2)]);
-							map.set(field2, mapChild);
-							mapChild = null;
+						if (collectionItem != null && Std.is(collectionItem, AJsonModel)) { // если тип - наследник жсон-модели то пройтись по детям
+							Reflect.callMethod(collectionItem, Reflect.field(collectionItem, "fillData"), [Reflect.field(fieldData, field2), field2]);
+							map.set(field2, collectionItem);
+							collectionItem = null;
 						} else { // Иначе - заполняем по дефолту
 							map.set(field2, Reflect.field(fieldData, field2));
 						}
 					}
-				// TODO проверка типа массива
 				} else if (Std.is(fieldRef, Array)) {
 					var array:Array<Dynamic> = cast fieldRef;
-					// получить тип
-					var fieldMeta = Reflect.field(_meta, field);
-					var typeArr:Array<Dynamic> = null;
-					var type = null;
-					var arrayChild = null;
-					if (fieldMeta != null) typeArr = Reflect.field(fieldMeta, "collectionType");
-					if (typeArr != null && typeArr.length > 0) type = Type.resolveClass(typeArr[0]);
 					
-					for (field2 in Reflect.fields(fieldData)) { // Проходим по всем детям мапы
-						if (type != null) arrayChild = Type.createInstance(type, []);
+					for (field2 in Reflect.fields(fieldData)) { // Проходим по всем детям массива
+						if (fieldType != null) collectionItem = Type.createInstance(fieldType, []);
 						
-						if (arrayChild != null && Std.is(arrayChild, AJsonModel)) { // если тип - наследник жсон-модели то пройтись по детям
-							Reflect.callMethod(arrayChild, Reflect.field(arrayChild, "fillData"), [Reflect.field(fieldData, field2)]);
-							array.insert(cast field2, arrayChild);
-							arrayChild = null;
+						if (collectionItem != null && Std.is(collectionItem, AJsonModel)) { // если тип - наследник жсон-модели то пройтись по детям
+							Reflect.callMethod(collectionItem, Reflect.field(collectionItem, "fillData"), [Reflect.field(fieldData, field2), field2]);
+							array.insert(cast field2, collectionItem);
+							collectionItem = null;
 						} else { // Иначе - заполняем по дефолту
 							array.insert(cast field2, Reflect.field(fieldData, field2));
 						}

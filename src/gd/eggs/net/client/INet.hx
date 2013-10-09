@@ -27,12 +27,6 @@ typedef ConnectorEvent = {
 interface IMessage {
 	
 	//=========================================================================
-	//	VARIABLES
-	//=========================================================================
-	
-	var data(default, null):Dynamic;
-	
-	//=========================================================================
 	//	METHODS
 	//=========================================================================
 	
@@ -59,7 +53,7 @@ interface IConnector<T:IMessage> extends IInitialize {
 	var signalConnected(default, null):Signal1<ConnectorEvent>;
 	var signalClosed(default, null):Signal1<ConnectorEvent>;
 	var signalLog(default, null):Signal1<ConnectorEvent>;
-	var signalData(default, null):Signal1<IMessage>;
+	var signalData(default, null):Signal1<T>;
 	
 	//=========================================================================
 	//	METHODS

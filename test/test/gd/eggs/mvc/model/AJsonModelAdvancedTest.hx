@@ -133,6 +133,40 @@ class AJsonModelAdvancedTest
 		Assert.areEqual(child.hashInt.get("two"), 2);
 	}
 	
+	@Test
+	public function arrayTypedTestWithId():Void 
+	{
+		var data = { 
+			arrayChild: { 
+				"0":{ arrayInt:[1, 2], hashInt:{one:1, two:2, three:3} }, 
+				"1":{ arrayInt:[3, 4], hashInt:{four:4, five:5, six:6} } 
+			} 
+		};
+		
+		var data2 = { 
+			arrayChild: [ 
+				{ arrayInt:[1, 2], hashInt:{one:1, two:2, three:3} }, 
+				{ arrayInt:[3, 4], hashInt:{one:1, two:2, three:3} } 
+			]
+		};
+		var model = new TestParentModel2();
+		
+		model.fillData(data);
+		
+		var child = model.arrayChild[1];
+		Assert.isNotNull(child);
+		Assert.isTrue(Std.is(child, TestChildModel2));
+		Assert.areEqual(child._id_, 1);
+		
+		
+		model.fillData(data2);
+		
+		var child = model.arrayChild[0];
+		Assert.isNotNull(child);
+		Assert.isTrue(Std.is(child, TestChildModel2));
+		Assert.areEqual(child._id_, 0);
+	}
+	
 	@BeforeClass
 	public function beforeClass():Void 
 	{

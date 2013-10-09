@@ -21,7 +21,7 @@ class BaseConnector<T:IMessage> implements IInitialize {
 	public var signalConnected(default, null):Signal1<ConnectorEvent>;
 	public var signalClosed(default, null):Signal1<ConnectorEvent>;
 	public var signalLog(default, null):Signal1<ConnectorEvent>;
-	public var signalData(default, null):Signal1<IMessage>;
+	public var signalData(default, null):Signal1<T>;
 	
 	public var messageClass(default, null):Class<T>;
 	
@@ -47,7 +47,7 @@ class BaseConnector<T:IMessage> implements IInitialize {
 		signalConnected = new Signal1<ConnectorEvent>();
 		signalClosed = new Signal1<ConnectorEvent>();
 		signalLog = new Signal1<ConnectorEvent>();
-		signalData = new Signal1<IMessage>();
+		signalData = new Signal1<T>();
 		
 		isInited = true;
 	}
