@@ -1,0 +1,12 @@
+[submodule "eggs-mvc-hx"]
+	path = eggs-mvc-hx
+	url = git@github.com:eggs-gd/eggs-mvc-hx.git
+[submodule "eggs-net-hx"]
+	path = eggs-net-hx
+	url = git@github.com:eggs-gd/eggs-net-hx.git
+[submodule "eggs-state-hx"]
+	path = eggs-state-hx
+	url = git@github.com:eggs-gd/eggs-state-hx.git
+[submodule "eggs-utils-hx"]
+	path = eggs-utils-hx
+	url = git@github.com:eggs-gd/eggs-utils-hx.git
