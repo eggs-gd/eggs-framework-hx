@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project>
 	
-	<meta title="sample-net" package="gd.eggs.samples.net.samplenet" version="1.0.0" company="Dukobpa3" />
+	<meta title="sample-net" package="gd.eggs.samples.net" version="1.0.0" company="Dukobpa3" />
 	
 	<app main="gd.eggs.samples.net.Main" file="samplenet" path="bin" />
 	
