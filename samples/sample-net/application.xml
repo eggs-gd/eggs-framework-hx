@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="sample-net" package="gd.eggs.samples.net.samplenet" version="1.0.0" company="Dukobpa3" />
+	
+	<app main="gd.eggs.samples.net.Main" file="samplenet" path="bin" />
+	
+	<window background="#000000" fps="60" />
+	<window width="800" height="480" unless="mobile" />
+	<window orientation="landscape" vsync="false" antialiasing="0" if="cpp" />
+	
+	<source path="src" />
+	<source path="../../eggs-utils-hx/src" />
+	<source path="../../eggs-net-hx/src" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="actuate" />
+	<haxelib name="msignal" />
+	
+</project>
