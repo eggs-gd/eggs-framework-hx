@@ -2,11 +2,12 @@ package gd.eggs.samples.net;
 import flash.display.Sprite;
 import flash.events.Event;
 import flash.Lib;
+import flash.utils.Timer;
 import gd.eggs.net.client.IConnection.ConnectConfig;
 import gd.eggs.net.client.IConnection.ConnectionType;
 import gd.eggs.net.client.IConnection.ConnectorEvent;
 import gd.eggs.net.client.ServerProxy;
-import gd.eggs.samples.net.SampleDecoder.ServerData;
+import gd.eggs.samples.net.SampleDecoder;
 import haxe.Json;
 
 
@@ -14,10 +15,6 @@ import haxe.Json;
  * @author Dukobpa3
  */
 
- 
-typedef BaseCommand = { command:String };
-typedef UserAuth = { > BaseCommand, uid:String };
- 
 class Main extends Sprite  {
 	
 	var _serverProxy(default, null):ServerProxy;
@@ -60,7 +57,9 @@ class Main extends Sprite  {
 		
 		trace('start our app');
 		
-		_serverProxy = new ServerProxy(new SampleDecoder());
+		var decoder = new SampleDecoder();
+		
+		_serverProxy = new ServerProxy(decoder);
 		
 		_serverProxy.signalConnected.add(onServerConnect);
 		_serverProxy.signalDisconnected.add(onServerDisonnect);
@@ -81,7 +80,8 @@ class Main extends Sprite  {
 	
 	function onServerConnect(event:ConnectorEvent) {
 		trace("-- server connected: " + event.message);
-		var command:UserAuth = { command:'user.auth', uid:'uid312121212' };
+		var command:UserAuth;
+		command = { command:'user.auth', uid:'uid0' };
 		trace(">> message: " + Json.stringify(command));
 		_serverProxy.sendMessage(command);
 	}
@@ -98,7 +98,7 @@ class Main extends Sprite  {
 		trace("-- server log: " + event.message);
 	}
 	
-	function onServerData(msg:ServerData):Void {
+	function onServerData(msg:Dynamic):Void {
 		trace("<< message: " + Json.stringify(msg));
 	}
 }

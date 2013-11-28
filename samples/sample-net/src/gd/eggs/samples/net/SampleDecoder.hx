@@ -12,9 +12,10 @@ import msignal.Signal.Signal1;
  * @author Dukobpa3
  */
 
-typedef ServerData = { game: { }};
+typedef BaseCommand = { command:String };
+typedef UserAuth = { > BaseCommand, uid:String };
  
-class SampleDecoder implements IDecoder<ServerData>
+class SampleDecoder implements IDecoder<BaseCommand>
 {
 
 	//=====================================================================
@@ -30,21 +31,21 @@ class SampleDecoder implements IDecoder<ServerData>
 	public var signalInvalidPackageSize(default, null):Signal0;
 	public var signalInProgress(default, null):Signal0;
 	public var signalReceivingHeader(default, null):Signal0;
-	public var signalDone(default, null):Signal1<ServerData>;
+	public var signalDone(default, null):Signal1<BaseCommand>;
 	
-	var _buffer(default, null):ByteArray;
+	static var _buffer:String;
 	var _size(default, null):Int;
 	
 	public function new() {
 		
-		_buffer = new ByteArray();
+		_buffer = '';
 		_size = SIZE_NONE;
 		
 		signalInvalidDataType = new Signal0();
 		signalInvalidPackageSize = new Signal0();
 		signalInProgress = new Signal0();
 		signalReceivingHeader = new Signal0();
-		signalDone = new Signal1<ServerData>();
+		signalDone = new Signal1<BaseCommand>();
 	}
 	
 	/**
@@ -66,48 +67,44 @@ class SampleDecoder implements IDecoder<ServerData>
 		
 		data.position = 0;
 		
-		_buffer.position = _buffer.length; // передвигаем курсор в конец
-		_buffer.writeBytes(data); // дописываем в буфер то что получили
-		data.clear(); // очищаем то что получили
-		_buffer.position = 0;
-		
 		if (_size == SIZE_NONE) { // если размер не считали
-			if (_buffer.length < 4) { // если в буфере не достаточно байтов для получения длины
+			if (data.length < SIZE_HEADER) { // если в буфере не достаточно байтов для получения длины
 				signalReceivingHeader.dispatch();
 				return;
+			} else {
+				_size = data.readInt(); // если байтов для получения длины хватает - читаем ее
+				data.position = SIZE_HEADER;
 			}
-			_size = _buffer.readInt(); // если байтов для получения длины хватает - читаем ее
-		} else {
-			_buffer.position = 4;
 		}
 		
-		if (_buffer.bytesAvailable < _size) { // если от курсора до конца меньше байт чем указано в длине
+		var str:String;
+		
+		if ((data.length - data.position) < _size) {
+			str = data.readUTFBytes(data.bytesAvailable);
+			_buffer += str;
+		} else {
+			str = data.readUTFBytes(_size);
+			_buffer += str;
+		}
+		
+		if (_buffer.length < _size) {
 			signalInProgress.dispatch(); // ждем еще данных
-			return;
-		} else { // иначе читаем пакет
-			// воспользуемся датой повтороно. Но она сейчас пустая, это просто временный буффер
-			data.writeBytes(_buffer, _buffer.position, _size); // всунем хвост буффера в данные
-			
-			data.position = 0; // парсим данные
-			var message:Dynamic = Json.parse(data.readUTFBytes(_size));
-			signalDone.dispatch(message);
-			
-			_buffer.position += _size;
+		} else {
+			signalDone.dispatch(Json.parse(_buffer));
+			_buffer = '';
 			_size = SIZE_NONE;
-			data.clear(); // дальше обнуляем, воспользуемся повторно в качестве нового месаджа
-			
-			if (_buffer.bytesAvailable != 0) {
-				data.writeBytes(_buffer, _buffer.position);  // всунем в данные хвост буффера
-				data.position = 0;
-				_buffer.clear(); // очистим буффер (в след цикле хвост в него допишется)
-				parse(data);
-			}
-			_buffer.clear(); // очистим буффер (в след цикле хвост в него допишется)
-		}	
+		}
+		
+		if ((data.length - data.position) > 0) {
+			var tmpBa:ByteArray = new ByteArray();
+			tmpBa.writeBytes(data, data.position, data.bytesAvailable);
+			data.clear();
+			parse(tmpBa);
+		}
 		
 	}
 	
-	public function pack(message:ServerData):ByteArray {
+	public function pack(message:BaseCommand):ByteArray {
 		
 		#if debug
 		if(Validate.isNull(message)) throw "message is null";
